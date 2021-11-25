@@ -2,7 +2,7 @@ import { Template } from '@aws-cdk/assertions';
 import { Stack, App } from '@aws-cdk/core';
 import {
   HttpApi, HttpAuthorizer, HttpAuthorizerType, HttpConnectionType, HttpIntegrationType, HttpMethod, HttpRoute,
-  HttpRouteAuthorizerBindOptions, HttpRouteAuthorizerConfig, HttpRouteIntegrationConfig, HttpRouteKey, IHttpRouteAuthorizer, IHttpRouteIntegration,
+  HttpRouteAuthorizerBindOptions, HttpRouteAuthorizerConfig, HttpRouteIntegrationConfig, HttpRouteKey, IHttpRouteAuthorizer, HttpRouteIntegration,
   MappingValue,
   ParameterMapping,
   PayloadFormatVersion,
@@ -167,7 +167,7 @@ describe('HttpRoute', () => {
     const stack = new Stack();
     const httpApi = new HttpApi(stack, 'HttpApi');
 
-    class PrivateIntegration implements IHttpRouteIntegration {
+    class PrivateIntegration extends HttpRouteIntegration {
       public bind(): HttpRouteIntegrationConfig {
         return {
           method: HttpMethod.ANY,
@@ -212,7 +212,7 @@ describe('HttpRoute', () => {
     const stack = new Stack();
     const httpApi = new HttpApi(stack, 'HttpApi');
 
-    class PrivateIntegration implements IHttpRouteIntegration {
+    class PrivateIntegration extends HttpRouteIntegration {
       public bind(): HttpRouteIntegrationConfig {
         return {
           method: HttpMethod.ANY,
@@ -310,7 +310,7 @@ describe('HttpRoute', () => {
   });
 });
 
-class DummyIntegration implements IHttpRouteIntegration {
+class DummyIntegration extends HttpRouteIntegration {
   public bind(): HttpRouteIntegrationConfig {
     return {
       type: HttpIntegrationType.HTTP_PROXY,

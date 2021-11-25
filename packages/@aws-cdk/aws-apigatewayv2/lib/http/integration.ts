@@ -1,5 +1,6 @@
 /* eslint-disable quotes */
-import { Resource } from '@aws-cdk/core';
+import * as crypto from 'crypto';
+import { Resource, Stack } from '@aws-cdk/core';
 import { Construct } from 'constructs';
 import { CfnIntegration } from '../apigatewayv2.generated';
 import { IIntegration } from '../common';
@@ -191,11 +192,46 @@ export interface HttpRouteIntegrationBindOptions {
 /**
  * The interface that various route integration classes will inherit.
  */
-export interface IHttpRouteIntegration {
+export abstract class HttpRouteIntegration {
+  private bindResult?: { readonly integrationId: string };
+
+  /**
+   * Internal method called when binding this integration to the route.
+   * @internal
+   */
+  public _bindToRoute(options: HttpRouteIntegrationBindOptions): { readonly integrationId: string } {
+    if (this.bindResult) {
+      return this.bindResult;
+    }
+
+    const config = this.bind(options);
+
+    const integration = new HttpIntegration(options.scope, `HttpIntegration-${hash(config)}`, {
+      httpApi: options.route.httpApi,
+      integrationType: config.type,
+      integrationUri: config.uri,
+      method: config.method,
+      connectionId: config.connectionId,
+      connectionType: config.connectionType,
+      payloadFormatVersion: config.payloadFormatVersion,
+      secureServerName: config.secureServerName,
+      parameterMapping: config.parameterMapping,
+    });
+
+    this.bindResult = { integrationId: integration.integrationId };
+    return this.bindResult;
+
+    function hash(x: any) {
+      const stringifiedConfig = JSON.stringify(Stack.of(options.scope).resolve(x));
+      const configHash = crypto.createHash('md5').update(stringifiedConfig).digest('hex');
+      return configHash;
+    }
+  }
+
   /**
    * Bind this integration to the route.
    */
-  bind(options: HttpRouteIntegrationBindOptions): HttpRouteIntegrationConfig;
+  public abstract bind(options: HttpRouteIntegrationBindOptions): HttpRouteIntegrationConfig;
 }
 
 /**

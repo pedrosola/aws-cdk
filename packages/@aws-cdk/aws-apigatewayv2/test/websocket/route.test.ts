@@ -1,7 +1,7 @@
 import { Template } from '@aws-cdk/assertions';
 import { Stack } from '@aws-cdk/core';
 import {
-  IWebSocketRouteIntegration, WebSocketApi, WebSocketIntegrationType,
+  WebSocketRouteIntegration, WebSocketApi, WebSocketIntegrationType,
   WebSocketRoute, WebSocketRouteIntegrationBindOptions, WebSocketRouteIntegrationConfig,
 } from '../../lib';
 
@@ -44,7 +44,7 @@ describe('WebSocketRoute', () => {
 });
 
 
-class DummyIntegration implements IWebSocketRouteIntegration {
+class DummyIntegration extends WebSocketRouteIntegration {
   bind(_options: WebSocketRouteIntegrationBindOptions): WebSocketRouteIntegrationConfig {
     return {
       type: WebSocketIntegrationType.AWS_PROXY,
