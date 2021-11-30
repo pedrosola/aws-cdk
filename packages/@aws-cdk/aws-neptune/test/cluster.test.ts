@@ -330,6 +330,25 @@ describe('DatabaseCluster', () => {
     });
   });
 
+  test('cluster Auto Minor Version upgrade is on', () => {
+    // GIVEN
+    const stack = testStack();
+    const vpc = new ec2.Vpc(stack, 'VPC');
+
+    // WHEN
+    const autoMinorVersionUpgrade = true;
+    new DatabaseCluster(stack, 'Database', {
+      vpc,
+      instanceType: InstanceType.R5_LARGE,
+      autoMinorVersionUpgrade: autoMinorVersionUpgrade,
+    });
+
+    // THEN
+    Template.fromStack(stack).hasResourceProperties('AWS::Neptune::DBInstance', {
+      AutoMinorVersionUpgrade: true,
+    });
+  });
+
   test('imported cluster has supplied attributes', () => {
     // GIVEN
     const stack = testStack();

@@ -226,6 +226,15 @@ export interface DatabaseClusterProps {
    * @default - Retain cluster.
    */
   readonly removalPolicy?: RemovalPolicy
+
+  /**
+   * Indicates wether minor version patches should be enabled for the cluster
+   * instances.
+   *
+   * @default - `false`
+   */
+  readonly autoMinorVersionUpgrade?: boolean
+
 }
 
 /**
@@ -454,6 +463,9 @@ export class DatabaseCluster extends DatabaseClusterBase implements IDatabaseClu
     // Default to encrypted storage
     const storageEncrypted = props.storageEncrypted ?? true;
 
+    // Default to disable Auto Minor Version upgrades
+    const autoMinorVersionUpgrade = props.autoMinorVersionUpgrade ?? false;
+
     if (props.kmsKey && !storageEncrypted) {
       throw new Error('KMS key supplied but storageEncrypted is false');
     }
@@ -513,6 +525,7 @@ export class DatabaseCluster extends DatabaseClusterBase implements IDatabaseClu
         // Instance properties
         dbInstanceClass: props.instanceType._instanceType,
         dbParameterGroupName: props.parameterGroup?.parameterGroupName,
+        autoMinorVersionUpgrade: autoMinorVersionUpgrade,
       });
 
       // We must have a dependency on the NAT gateway provider here to create
